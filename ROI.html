@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>直播盈亏ROI计算器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f0f0;
+        }
+        .container {
+            max-width: 600px;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .unit {
+            margin-left: 5px;
+            font-size: 0.8em;
+        }
+        input[type="number"] {
+            width: 100px;
+        }
+        button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        /* 添加作者信息样式 */
+        .author-info {
+            text-align: right;
+            font-size: 0.8em;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>直播盈亏ROI计算器</h1>
+        <form id="roiForm">
+            <label>
+                产品平均客单价:
+                <input type="number" id="avgPrice" name="avgPrice" value="79" required>
+                <span class="unit">元</span>
+            </label>
+            <label>
+                产品平均成本:
+                <input type="number" id="cost" name="cost" value="50.6" required>
+                <span class="unit">元</span>
+            </label>
+            <label>
+                平台抽成:
+                <input type="number" id="platformFee" name="platformFee" value="6" required>
+                <span class="unit">%</span>
+            </label>
+            <label>
+                达人佣金:
+                <input type="number" id="talentCommission" name="talentCommission" value="0" required>
+                <span class="unit">%</span>
+            </label>
+            <label>
+                售前退货率:
+                <input type="number" id="preSaleReturnRate" name="preSaleReturnRate" value="20" required>
+                <span class="unit">%</span>
+            </label>
+            <label>
+                售后退货率:
+                <input type="number" id="postSaleReturnRate" name="postSaleReturnRate" value="5" required>
+                <span class="unit">%</span>
+            </label>
+            <label>
+                发货快递费:
+                <input type="number" id="shippingFee" name="shippingFee" value="3.5" required>
+                <span class="unit">元</span>
+            </label>
+            <label>
+                退货快递费:
+                <input type="number" id="returnShippingFee" name="returnShippingFee" value="2.3" required>
+                <span class="unit">元</span>
+            </label>
+            <button type="button" onclick="calculateROI()">计算ROI</button>
+        </form>
+        <div id="result">
+            <p>盈亏ROI: <span id="roiResult"></span></p>
+            <p>盈亏TR: <span id="trResult"></span></p>
+        </div>
+        <!-- 添加作者信息 -->
+        <p class="author-info">作者: 灯塔商学院老余</p>
+    </div>
+    <script>
+        function calculateROI() {
+            const avgPrice = parseFloat(document.getElementById('avgPrice').value);
+            const cost = parseFloat(document.getElementById('cost').value);
+            const platformFee = parseFloat(document.getElementById('platformFee').value);
+            const talentCommission = parseFloat(document.getElementById('talentCommission').value);
+            const preSaleReturnRate = parseFloat(document.getElementById('preSaleReturnRate').value) / 100;
+            const postSaleReturnRate = parseFloat(document.getElementById('postSaleReturnRate').value) / 100;
+            const shippingFee = parseFloat(document.getElementById('shippingFee').value);
+            const returnShippingFee = parseFloat(document.getElementById('returnShippingFee').value);
+
+            // 计算逻辑
+            const productProfit = avgPrice - (cost + (avgPrice * (platformFee + talentCommission) / 100));
+            const totalReturnRate = preSaleReturnRate + postSaleReturnRate;
+            const adjustedAvgPrice = avgPrice * (1 - totalReturnRate);
+            const adjustedCost = cost + (shippingFee + (adjustedAvgPrice * postSaleReturnRate * returnShippingFee));
+
+            const roi = productProfit / adjustedCost;
+
+            document.getElementById('roiResult').textContent = roi.toFixed(2);
+            document.getElementById('trResult').textContent = ((roi - 1) * 100).toFixed(2) + '%';
+        }
+    </script>
+</body>
+</html>
