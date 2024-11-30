@@ -1,72 +1,69 @@
-<script>
-    const sites = {
-        "国家大学生就业服务平台": "https://www.ncss.cn",
-        "高校人才网": "http://www.gaoxiaojob.com",
-        "智联招聘": "https://www.zhaopin.com",
-        "前程无忧": "https://www.51job.com",
-        "BOSS直聘": "https://www.zhipin.com"
-    };
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>招聘信息汇总</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>招聘信息汇总</h1>
+    <div id="job-list"></div>
 
-    // 使用 CORS 代理
-    const proxy = "https://cors-anywhere.herokuapp.com/";
+    <script>
+        // 模拟静态招聘数据
+        const sites = {
+            "国家大学生就业服务平台": [
+                { title: "某企业招聘公告", link: "https://www.ncss.cn/job1" },
+                { title: "国家机关招聘信息", link: "https://www.ncss.cn/job2" },
+                { title: "互联网企业岗位", link: "https://www.ncss.cn/job3" }
+            ],
+            "高校人才网": [
+                { title: "高校教师招聘", link: "http://www.gaoxiaojob.com/job1" },
+                { title: "科研助理岗位", link: "http://www.gaoxiaojob.com/job2" },
+                { title: "高校行政管理岗位", link: "http://www.gaoxiaojob.com/job3" }
+            ],
+            "智联招聘": [
+                { title: "软件工程师招聘", link: "https://www.zhaopin.com/job1" },
+                { title: "市场营销经理岗位", link: "https://www.zhaopin.com/job2" }
+            ],
+            "前程无忧": [
+                { title: "数据分析师招聘", link: "https://www.51job.com/job1" },
+                { title: "财务管理岗位", link: "https://www.51job.com/job2" }
+            ],
+            "BOSS直聘": [
+                { title: "产品经理招聘", link: "https://www.zhipin.com/job1" },
+                { title: "UI/UX 设计师岗位", link: "https://www.zhipin.com/job2" }
+            ]
+        };
 
-    async function fetchJobs(siteName, siteUrl) {
-        try {
-            const response = await fetch(proxy + siteUrl);
-            if (!response.ok) {
-                throw new Error(`Failed to fetch ${siteName}`);
-            }
+        function loadJobs() {
+            const jobListDiv = document.getElementById("job-list");
+            jobListDiv.innerHTML = "";  // 清空内容
 
-            const html = await response.text();
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, "text/html");
+            Object.entries(sites).forEach(([siteName, jobs]) => {
+                const siteDiv = document.createElement("div");
+                siteDiv.className = "site-section";
+                siteDiv.innerHTML = `<h2>${siteName}</h2>`;
 
-            let jobList = [];
-            
-            doc.querySelectorAll('a').forEach((link, index) => {
-                if (index < 5) {
-                    jobList.push({
-                        title: link.textContent.trim(),
-                        link: link.href.startsWith('http') ? link.href : siteUrl + link.getAttribute('href')
+                if (jobs.length === 0) {
+                    siteDiv.innerHTML += `<p>暂无数据</p>`;
+                } else {
+                    jobs.forEach(job => {
+                        siteDiv.innerHTML += `
+                            <div class="job">
+                                <a href="${job.link}" target="_blank">${job.title}</a>
+                            </div>
+                        `;
                     });
                 }
+
+                jobListDiv.appendChild(siteDiv);
             });
-
-            return { siteName, jobList };
-        } catch (error) {
-            console.error(error);
-            return { siteName, jobList: [] };
         }
-    }
 
-    async function loadJobs() {
-        const jobListDiv = document.getElementById("job-list");
-        jobListDiv.innerHTML = "<p>加载中...</p>";
-
-        const fetchPromises = Object.entries(sites).map(([name, url]) => fetchJobs(name, url));
-        const results = await Promise.all(fetchPromises);
-
-        jobListDiv.innerHTML = "";
-        results.forEach(({ siteName, jobList }) => {
-            const siteDiv = document.createElement("div");
-            siteDiv.className = "site-section";
-            siteDiv.innerHTML = `<h2>${siteName}</h2>`;
-
-            if (jobList.length === 0) {
-                siteDiv.innerHTML += `<p>未能加载数据</p>`;
-            } else {
-                jobList.forEach(job => {
-                    siteDiv.innerHTML += `
-                        <div class="job">
-                            <a href="${job.link}" target="_blank">${job.title}</a>
-                        </div>
-                    `;
-                });
-            }
-
-            jobListDiv.appendChild(siteDiv);
-        });
-    }
-
-    loadJobs();
-</script>
+        // 加载模拟招聘数据
+        loadJobs();
+    </script>
+</body>
+</html>
