@@ -1,89 +1,72 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>招聘信息汇总</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <h1>招聘信息汇总</h1>
-    <div id="job-list"></div>
+<script>
+    const sites = {
+        "国家大学生就业服务平台": "https://www.ncss.cn",
+        "高校人才网": "http://www.gaoxiaojob.com",
+        "智联招聘": "https://www.zhaopin.com",
+        "前程无忧": "https://www.51job.com",
+        "BOSS直聘": "https://www.zhipin.com"
+    };
 
-    <script>
-        // 定义招聘网站
-        const sites = {
-            "国家大学生就业服务平台": "https://www.ncss.cn",
-            "高校人才网": "http://www.gaoxiaojob.com",
-            "智联招聘": "https://www.zhaopin.com",
-            "前程无忧": "https://www.51job.com",
-            "BOSS直聘": "https://www.zhipin.com"
-        };
+    // 使用 CORS 代理
+    const proxy = "https://cors-anywhere.herokuapp.com/";
 
-        async function fetchJobs(siteName, siteUrl) {
-            try {
-                const response = await fetch(siteUrl);
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch ${siteName}`);
-                }
-
-                const html = await response.text();
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, "text/html");
-
-                let jobList = [];
-                
-                // 根据网站的具体结构选择合适的选择器，以下为通用示例
-                doc.querySelectorAll('a').forEach((link, index) => {
-                    if (index < 5) {  // 限制只抓取前 5 条数据
-                        jobList.push({
-                            title: link.textContent.trim(),
-                            link: link.href.startsWith('http') ? link.href : siteUrl + link.getAttribute('href')
-                        });
-                    }
-                });
-
-                return { siteName, jobList };
-            } catch (error) {
-                console.error(error);
-                return { siteName, jobList: [] };
+    async function fetchJobs(siteName, siteUrl) {
+        try {
+            const response = await fetch(proxy + siteUrl);
+            if (!response.ok) {
+                throw new Error(`Failed to fetch ${siteName}`);
             }
-        }
 
-        async function loadJobs() {
-            const jobListDiv = document.getElementById("job-list");
-            jobListDiv.innerHTML = "<p>加载中...</p>";
+            const html = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, "text/html");
 
-            const fetchPromises = Object.entries(sites).map(([name, url]) => fetchJobs(name, url));
-            const results = await Promise.all(fetchPromises);
-
-            jobListDiv.innerHTML = "";  // 清空加载中提示
-            results.forEach(({ siteName, jobList }) => {
-                const siteDiv = document.createElement("div");
-                siteDiv.className = "site-section";
-                siteDiv.innerHTML = `<h2>${siteName}</h2>`;
-
-                if (jobList.length === 0) {
-                    siteDiv.innerHTML += `<p>未能加载数据</p>`;
-                } else {
-                    jobList.forEach(job => {
-                        siteDiv.innerHTML += `
-                            <div class="job">
-                                <a href="${job.link}" target="_blank">${job.title}</a>
-                            </div>
-                        `;
+            let jobList = [];
+            
+            doc.querySelectorAll('a').forEach((link, index) => {
+                if (index < 5) {
+                    jobList.push({
+                        title: link.textContent.trim(),
+                        link: link.href.startsWith('http') ? link.href : siteUrl + link.getAttribute('href')
                     });
                 }
-
-                jobListDiv.appendChild(siteDiv);
             });
+
+            return { siteName, jobList };
+        } catch (error) {
+            console.error(error);
+            return { siteName, jobList: [] };
         }
+    }
 
-        loadJobs();
-    </script>
-</body>
-</html>
+    async function loadJobs() {
+        const jobListDiv = document.getElementById("job-list");
+        jobListDiv.innerHTML = "<p>加载中...</p>";
 
-  </script>
-</body>
-</html>
+        const fetchPromises = Object.entries(sites).map(([name, url]) => fetchJobs(name, url));
+        const results = await Promise.all(fetchPromises);
+
+        jobListDiv.innerHTML = "";
+        results.forEach(({ siteName, jobList }) => {
+            const siteDiv = document.createElement("div");
+            siteDiv.className = "site-section";
+            siteDiv.innerHTML = `<h2>${siteName}</h2>`;
+
+            if (jobList.length === 0) {
+                siteDiv.innerHTML += `<p>未能加载数据</p>`;
+            } else {
+                jobList.forEach(job => {
+                    siteDiv.innerHTML += `
+                        <div class="job">
+                            <a href="${job.link}" target="_blank">${job.title}</a>
+                        </div>
+                    `;
+                });
+            }
+
+            jobListDiv.appendChild(siteDiv);
+        });
+    }
+
+    loadJobs();
+</script>
