@@ -1,128 +1,128 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-    <meta charset="UTF-8">
-    <title>直播盈亏ROI计算器</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background-color: #f0f0f0;
-        }
-        .container {
-            max-width: 600px;
-            background-color: white;
-            padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        label {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .unit {
-            margin-left: 5px;
-            font-size: 0.8em;
-        }
-        input[type="number"] {
-            width: 100px;
-        }
-        button {
-            padding: 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        /* 添加作者信息样式 */
-        .author-info {
-            text-align: right;
-            font-size: 0.8em;
-            margin-top: 10px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>高校招聘信息筛选</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #f9f9f9;
+    }
+    h1 {
+      text-align: center;
+    }
+    .filter, .results {
+      margin: 20px auto;
+      max-width: 800px;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+    }
+    select, input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .job {
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>直播盈亏ROI计算器</h1>
-        <form id="roiForm">
-            <label>
-                产品平均客单价:
-                <input type="number" id="avgPrice" name="avgPrice" value="79" required>
-                <span class="unit">元</span>
-            </label>
-            <label>
-                产品平均成本:
-                <input type="number" id="cost" name="cost" value="50.6" required>
-                <span class="unit">元</span>
-            </label>
-            <label>
-                平台抽成:
-                <input type="number" id="platformFee" name="platformFee" value="6" required>
-                <span class="unit">%</span>
-            </label>
-            <label>
-                达人佣金:
-                <input type="number" id="talentCommission" name="talentCommission" value="0" required>
-                <span class="unit">%</span>
-            </label>
-            <label>
-                售前退货率:
-                <input type="number" id="preSaleReturnRate" name="preSaleReturnRate" value="20" required>
-                <span class="unit">%</span>
-            </label>
-            <label>
-                售后退货率:
-                <input type="number" id="postSaleReturnRate" name="postSaleReturnRate" value="5" required>
-                <span class="unit">%</span>
-            </label>
-            <label>
-                发货快递费:
-                <input type="number" id="shippingFee" name="shippingFee" value="3.5" required>
-                <span class="unit">元</span>
-            </label>
-            <label>
-                退货快递费:
-                <input type="number" id="returnShippingFee" name="returnShippingFee" value="2.3" required>
-                <span class="unit">元</span>
-            </label>
-            <button type="button" onclick="calculateROI()">计算ROI</button>
-        </form>
-        <div id="result">
-            <p>盈亏ROI: <span id="roiResult"></span></p>
-            <p>盈亏TR: <span id="trResult"></span></p>
-        </div>
-        <!-- 添加作者信息 -->
-        <p class="author-info">作者: 灯塔商学院老余</p>
+  <h1>高校招聘信息筛选</h1>
+  <div class="filter">
+    <h2>筛选条件</h2>
+    <label for="city">城市</label>
+    <select id="city">
+      <option value="">选择城市</option>
+      <option value="北京">北京</option>
+      <option value="上海">上海</option>
+      <option value="广州">广州</option>
+      <option value="深圳">深圳</option>
+    </select>
+
+    <label for="major">专业</label>
+    <select id="major">
+      <option value="">选择专业</option>
+      <option value="计算机">计算机</option>
+      <option value="电子工程">电子工程</option>
+      <option value="数学">数学</option>
+      <option value="物理">物理</option>
+    </select>
+
+    <label for="position">岗位名称</label>
+    <input type="text" id="position" placeholder="输入岗位名称">
+
+    <button onclick="filterJobs()">筛选</button>
+  </div>
+
+  <div class="results">
+    <h2>招聘信息</h2>
+    <div id="jobList">
+      <!-- 筛选结果将显示在这里 -->
     </div>
-    <script>
-        function calculateROI() {
-            const avgPrice = parseFloat(document.getElementById('avgPrice').value);
-            const cost = parseFloat(document.getElementById('cost').value);
-            const platformFee = parseFloat(document.getElementById('platformFee').value);
-            const talentCommission = parseFloat(document.getElementById('talentCommission').value);
-            const preSaleReturnRate = parseFloat(document.getElementById('preSaleReturnRate').value) / 100;
-            const postSaleReturnRate = parseFloat(document.getElementById('postSaleReturnRate').value) / 100;
-            const shippingFee = parseFloat(document.getElementById('shippingFee').value);
-            const returnShippingFee = parseFloat(document.getElementById('returnShippingFee').value);
+  </div>
 
-            // 计算逻辑
-            const productProfit = avgPrice - (cost + (avgPrice * (platformFee + talentCommission) / 100));
-            const totalReturnRate = preSaleReturnRate + postSaleReturnRate;
-            const adjustedAvgPrice = avgPrice * (1 - totalReturnRate);
-            const adjustedCost = cost + (shippingFee + (adjustedAvgPrice * postSaleReturnRate * returnShippingFee));
+  <script>
+    const jobData = [
+      { city: "北京", major: "计算机", position: "软件工程师", description: "北京市高校招聘软件工程师" },
+      { city: "上海", major: "电子工程", position: "硬件工程师", description: "上海高校招聘硬件工程师" },
+      { city: "广州", major: "数学", position: "数据分析师", description: "广州市高校招聘数据分析师" },
+      { city: "深圳", major: "物理", position: "物理教师", description: "深圳市高校招聘物理教师" },
+    ];
 
-            const roi = productProfit / adjustedCost;
+    function filterJobs() {
+      const city = document.getElementById('city').value;
+      const major = document.getElementById('major').value;
+      const position = document.getElementById('position').value.toLowerCase();
 
-            document.getElementById('roiResult').textContent = roi.toFixed(2);
-            document.getElementById('trResult').textContent = ((roi - 1) * 100).toFixed(2) + '%';
-        }
+      const filteredJobs = jobData.filter(job => {
+        return (!city || job.city === city) &&
+               (!major || job.major === major) &&
+               (!position || job.position.toLowerCase().includes(position));
+      });
+
+      displayJobs(filteredJobs);
+    }
+
+    function displayJobs(jobs) {
+      const jobList = document.getElementById('jobList');
+      jobList.innerHTML = "";
+
+      if (jobs.length === 0) {
+        jobList.innerHTML = "<p>没有符合条件的招聘信息。</p>";
+      } else {
+        jobs.forEach(job => {
+          const jobDiv = document.createElement('div');
+          jobDiv.className = 'job';
+          jobDiv.innerHTML = `<h3>${job.position} - ${job.city}</h3><p>专业: ${job.major}</p><p>${job.description}</p>`;
+          jobList.appendChild(jobDiv);
+        });
+      }
+    }
+  </script>
+</body>
+</html>
