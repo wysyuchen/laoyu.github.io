@@ -1,128 +1,40 @@
-<!DOCTYPE html>
-<html lang="zh">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>高校招聘信息筛选</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-      background-color: #f9f9f9;
-    }
-    h1 {
-      text-align: center;
-    }
-    .filter, .results {
-      margin: 20px auto;
-      max-width: 800px;
-      padding: 20px;
-      background-color: #fff;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-    label {
-      display: block;
-      margin: 10px 0 5px;
-    }
-    select, input[type="text"] {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 20px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-    button {
-      padding: 10px 20px;
-      background-color: #007BFF;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #0056b3;
-    }
-    .job {
-      padding: 10px;
-      margin: 10px 0;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-    }
-  </style>
-</head>
-<body>
-  <h1>高校招聘信息筛选</h1>
-  <div class="filter">
-    <h2>筛选条件</h2>
-    <label for="city">城市</label>
-    <select id="city">
-      <option value="">选择城市</option>
-      <option value="北京">北京</option>
-      <option value="上海">上海</option>
-      <option value="广州">广州</option>
-      <option value="深圳">深圳</option>
-    </select>
+import requests
+from bs4 import BeautifulSoup
+import json
 
-    <label for="major">专业</label>
-    <select id="major">
-      <option value="">选择专业</option>
-      <option value="计算机">计算机</option>
-      <option value="电子工程">电子工程</option>
-      <option value="数学">数学</option>
-      <option value="物理">物理</option>
-    </select>
-
-    <label for="position">岗位名称</label>
-    <input type="text" id="position" placeholder="输入岗位名称">
-
-    <button onclick="filterJobs()">筛选</button>
-  </div>
-
-  <div class="results">
-    <h2>招聘信息</h2>
-    <div id="jobList">
-      <!-- 筛选结果将显示在这里 -->
-    </div>
-  </div>
-
-  <script>
-    const jobData = [
-      { city: "北京", major: "计算机", position: "软件工程师", description: "北京市高校招聘软件工程师" },
-      { city: "上海", major: "电子工程", position: "硬件工程师", description: "上海高校招聘硬件工程师" },
-      { city: "广州", major: "数学", position: "数据分析师", description: "广州市高校招聘数据分析师" },
-      { city: "深圳", major: "物理", position: "物理教师", description: "深圳市高校招聘物理教师" },
-    ];
-
-    function filterJobs() {
-      const city = document.getElementById('city').value;
-      const major = document.getElementById('major').value;
-      const position = document.getElementById('position').value.toLowerCase();
-
-      const filteredJobs = jobData.filter(job => {
-        return (!city || job.city === city) &&
-               (!major || job.major === major) &&
-               (!position || job.position.toLowerCase().includes(position));
-      });
-
-      displayJobs(filteredJobs);
+def scrape_gaoxiaorencai():
+    url = "https://www.gaoxiaojob.com/zhaopin/"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36"
     }
+    
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.content, 'html.parser')
+        jobs = []
+        
+        # 假设每条招聘信息在某个 div 或 li 标签中
+        for job in soup.select('.joblist > li'):  # 需要根据网站实际结构调整选择器
+            title = job.find('a').text.strip()
+            link = job.find('a')['href']
+            date = job.find('span', class_='date').text.strip()  # 也根据实际情况调整
+            
+            jobs.append({
+                'title': title,
+                'link': link,
+                'date': date
+            })
+        
+        return jobs
+    else:
+        print("Failed to retrieve data")
+        return []
 
-    function displayJobs(jobs) {
-      const jobList = document.getElementById('jobList');
-      jobList.innerHTML = "";
+if __name__ == "__main__":
+    job_listings = scrape_gaoxiaorencai()
+    with open("jobs.json", "w", encoding="utf-8") as f:
+        json.dump(job_listings, f, ensure_ascii=False, indent=4)
 
-      if (jobs.length === 0) {
-        jobList.innerHTML = "<p>没有符合条件的招聘信息。</p>";
-      } else {
-        jobs.forEach(job => {
-          const jobDiv = document.createElement('div');
-          jobDiv.className = 'job';
-          jobDiv.innerHTML = `<h3>${job.position} - ${job.city}</h3><p>专业: ${job.major}</p><p>${job.description}</p>`;
-          jobList.appendChild(jobDiv);
-        });
-      }
-    }
   </script>
 </body>
 </html>
