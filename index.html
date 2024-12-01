@@ -3,53 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>课堂点名工具</title>
+    <title>大学课堂点名工具</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>大学课堂点名工具</h1>
+    <div class="container">
+        <h1>大学课堂点名工具</h1>
 
-    <!-- 学生名单输入区域 -->
-    <div id="input-section">
-        <textarea id="student-names" placeholder="请输入学生名单，每行一个名字"></textarea>
-        <button onclick="loadStudentList()">加载学生名单</button>
+        <!-- 学生名单输入与导入 -->
+        <div id="input-section">
+            <textarea id="student-names" placeholder="手动输入学生名单，每行一个名字"></textarea>
+            <p>或</p>
+            <input type="file" id="file-input" accept=".xls, .xlsx" onchange="importStudentList(event)">
+            <button onclick="loadStudentList()">加载学生名单</button>
+        </div>
+
+        <!-- 点名控制 -->
+        <div id="control-section">
+            <button onclick="pickRandomStudent()">随机点名</button>
+            <button onclick="resetAttendance()">重置点名</button>
+        </div>
+
+        <!-- 当前点名 -->
+        <div id="current-student">
+            <h2>当前被点名学生：</h2>
+            <p id="picked-student">尚未开始点名</p>
+        </div>
+
+        <!-- 已点名列表 -->
+        <div id="called-list">
+            <h2>已点名学生：</h2>
+            <ul id="called-students"></ul>
+        </div>
     </div>
 
-    <!-- 点名控制区 -->
-    <div id="control-section">
-        <button onclick="pickRandomStudent()">随机点名</button>
-        <button onclick="resetAttendance()">重置点名</button>
-    </div>
-
-    <!-- 当前被点名学生 -->
-    <div id="current-student">
-        <h2>当前被点名学生：</h2>
-        <p id="picked-student">尚未开始点名</p>
-    </div>
-
-    <!-- 已点名学生列表 -->
-    <div id="called-list">
-        <h2>已点名学生：</h2>
-        <ul id="called-students"></ul>
-    </div>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
         let studentList = [];
         let calledStudents = new Set();
 
+        // 从文本框或文件加载名单
         function loadStudentList() {
             const names = document.getElementById("student-names").value.trim();
-            if (names === "") {
-                alert("请先输入学生名单！");
+            if (names === "" && studentList.length === 0) {
+                alert("请先输入或导入学生名单！");
                 return;
             }
-            studentList = names.split("\n").map(name => name.trim()).filter(name => name !== "");
+            if (names !== "") {
+                studentList = names.split("\n").map(name => name.trim()).filter(name => name !== "");
+            }
             calledStudents.clear();
             document.getElementById("called-students").innerHTML = "";
             document.getElementById("picked-student").innerText = "尚未开始点名";
             alert("学生名单已加载成功！");
         }
 
+        // 随机点名
         function pickRandomStudent() {
             if (studentList.length === 0) {
                 alert("请先加载学生名单！");
@@ -74,11 +83,32 @@
             calledList.appendChild(listItem);
         }
 
+        // 重置点名记录
         function resetAttendance() {
             calledStudents.clear();
             document.getElementById("called-students").innerHTML = "";
             document.getElementById("picked-student").innerText = "尚未开始点名";
             alert("点名记录已重置！");
+        }
+
+        // 导入 Excel 表格并解析
+        function importStudentList(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                const names = XLSX.utils.sheet_to_json(worksheet, { header: 1 }).flat();
+
+                studentList = names.filter(name => typeof name === 'string' && name.trim() !== "").map(name => name.trim());
+                document.getElementById("student-names").value = studentList.join("\n");
+                alert("学生名单已成功导入！");
+            };
+            reader.readAsArrayBuffer(file);
         }
     </script>
 </body>
