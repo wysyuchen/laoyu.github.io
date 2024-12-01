@@ -14,7 +14,7 @@
         <div id="input-section">
             <textarea id="student-names" placeholder="手动输入学生名单，每行一个名字"></textarea>
             <p>或</p>
-            <input type="file" id="file-input" accept=".xls, .xlsx" onchange="importStudentList(event)">
+            <input type="file" id="file-input" accept=".xls,.xlsx" onchange="importStudentList(event)">
             <button onclick="loadStudentList()">加载学生名单</button>
         </div>
 
@@ -97,6 +97,16 @@
                 const workbook = XLSX.read(data, { type: 'array' });
                 const firstSheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[firstSheetName];
-                const names = XLSX.utils.sheet_to_json(worksheet, { header: 1 }).flat();
+                const names = XLSX.utils.sheet_to_json(worksheet, { header: 1 })
+                    .flat()
+                    .filter(name => typeof name === 'string' && name.trim() !== "");
 
-                studentList = names.filter(name => typeof name === 'string' && name.trim() !== "").map(name => na
+                studentList = names.map(name => name.trim());
+                document.getElementById("student-names").value = studentList.join("\n");
+                alert("学生名单已成功导入！");
+            };
+            reader.readAsArrayBuffer(file);
+        }
+    </script>
+</body>
+</html>
