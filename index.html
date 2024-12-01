@@ -4,13 +4,110 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>大学课堂点名工具</title>
-    <link rel="stylesheet" href="styles.css">
+
+    <style>
+        /* 这里是原 styles.css 中的 CSS 内容 */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: url('image.png') no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #ffffff;
+        }
+
+        .container {
+            background-color: rgba(0, 0, 0, 0.75);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+            width: 50%;
+            max-width: 800px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            color: #f8f9fa;
+        }
+
+        textarea, input[type="file"] {
+            width: 80%;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            color: #333;
+        }
+
+        textarea {
+            height: 120px;
+            resize: none;
+        }
+
+        input[type="file"] {
+            background-color: #ffffff;
+            cursor: pointer;
+        }
+
+        button {
+            padding: 12px 25px;
+            margin: 10px;
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 18px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        button.secondary {
+            background-color: #6c757d;
+        }
+
+        button.secondary:hover {
+            background-color: #5a6268;
+        }
+
+        #picked-student {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        #called-list ul {
+            list-style-type: none;
+            padding: 0;
+            text-align: left;
+        }
+
+        #called-list li {
+            background: #e9ecef;
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 5px;
+            color: #333;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <h1>大学课堂点名工具</h1>
 
-        <!-- 学生名单输入与导入 -->
         <div id="input-section">
             <textarea id="student-names" placeholder="手动输入学生名单，每行一个名字"></textarea>
             <p>或</p>
@@ -18,19 +115,16 @@
             <button class="btn" onclick="loadStudentList()">加载学生名单</button>
         </div>
 
-        <!-- 点名控制 -->
         <div id="control-section">
             <button class="btn primary" onclick="pickRandomStudent()">随机点名</button>
             <button class="btn secondary" onclick="resetAttendance()">重置点名</button>
         </div>
 
-        <!-- 当前点名 -->
         <div id="current-student">
             <h2>当前被点名学生：</h2>
             <p id="picked-student">尚未开始点名</p>
         </div>
 
-        <!-- 已点名列表 -->
         <div id="called-list">
             <h2>已点名学生：</h2>
             <ul id="called-students"></ul>
@@ -39,6 +133,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
+        // JavaScript 脚本
         let studentList = [];
         let calledStudents = new Set();
 
@@ -110,100 +205,3 @@
     </script>
 </body>
 </html>
-/* 通用样式 */
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0;
-    padding: 0;
-    background: url('image.png') no-repeat center center fixed;
-    background-size: cover;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    color: #ffffff;
-}
-
-.container {
-    background-color: rgba(0, 0, 0, 0.75);
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
-    width: 50%;
-    max-width: 800px;
-    text-align: center;
-    transition: all 0.3s ease;
-}
-
-h1 {
-    font-size: 3em;
-    margin-bottom: 20px;
-    color: #f8f9fa;
-}
-
-textarea, input[type="file"] {
-    width: 80%;
-    margin-bottom: 10px;
-    padding: 10px;
-    border: none;
-    border-radius: 5px;
-    font-size: 1em;
-    color: #333;
-}
-
-textarea {
-    height: 120px;
-    resize: none;
-}
-
-input[type="file"] {
-    background-color: #ffffff;
-    cursor: pointer;
-}
-
-button {
-    padding: 12px 25px;
-    margin: 10px;
-    background-color: #007bff;
-    color: #ffffff;
-    border: none;
-    cursor: pointer;
-    border-radius: 8px;
-    font-size: 18px;
-    transition: background-color 0.3s;
-}
-
-button:hover {
-    background-color: #0056b3;
-}
-
-button.secondary {
-    background-color: #6c757d;
-}
-
-button.secondary:hover {
-    background-color: #5a6268;
-}
-
-#picked-student {
-    font-size: 1.8em;
-    font-weight: bold;
-    margin-top: 10px;
-}
-
-#called-list ul {
-    list-style-type: none;
-    padding: 0;
-    text-align: left;
-}
-
-#called-list li {
-    background: #e9ecef;
-    margin: 5px 0;
-    padding: 10px;
-    border-radius: 5px;
-    color: #333;
-    font-weight: bold;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
