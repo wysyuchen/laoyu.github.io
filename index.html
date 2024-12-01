@@ -3,67 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>招聘信息汇总</title>
+    <title>课堂点名工具</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>招聘信息汇总</h1>
-    <div id="job-list"></div>
+    <h1>大学课堂点名工具</h1>
+
+    <!-- 学生名单输入区域 -->
+    <div id="input-section">
+        <textarea id="student-names" placeholder="请输入学生名单，每行一个名字"></textarea>
+        <button onclick="loadStudentList()">加载学生名单</button>
+    </div>
+
+    <!-- 点名控制区 -->
+    <div id="control-section">
+        <button onclick="pickRandomStudent()">随机点名</button>
+        <button onclick="resetAttendance()">重置点名</button>
+    </div>
+
+    <!-- 当前被点名学生 -->
+    <div id="current-student">
+        <h2>当前被点名学生：</h2>
+        <p id="picked-student">尚未开始点名</p>
+    </div>
+
+    <!-- 已点名学生列表 -->
+    <div id="called-list">
+        <h2>已点名学生：</h2>
+        <ul id="called-students"></ul>
+    </div>
 
     <script>
-        // 模拟静态招聘数据
-        const sites = {
-            "国家大学生就业服务平台": [
-                { title: "某企业招聘公告", link: "https://www.ncss.cn/job1" },
-                { title: "国家机关招聘信息", link: "https://www.ncss.cn/job2" },
-                { title: "互联网企业岗位", link: "https://www.ncss.cn/job3" }
-            ],
-            "高校人才网": [
-                { title: "高校教师招聘", link: "http://www.gaoxiaojob.com/job1" },
-                { title: "科研助理岗位", link: "http://www.gaoxiaojob.com/job2" },
-                { title: "高校行政管理岗位", link: "http://www.gaoxiaojob.com/job3" }
-            ],
-            "智联招聘": [
-                { title: "软件工程师招聘", link: "https://www.zhaopin.com/job1" },
-                { title: "市场营销经理岗位", link: "https://www.zhaopin.com/job2" }
-            ],
-            "前程无忧": [
-                { title: "数据分析师招聘", link: "https://www.51job.com/job1" },
-                { title: "财务管理岗位", link: "https://www.51job.com/job2" }
-            ],
-            "BOSS直聘": [
-                { title: "产品经理招聘", link: "https://www.zhipin.com/job1" },
-                { title: "UI/UX 设计师岗位", link: "https://www.zhipin.com/job2" }
-            ]
-        };
+        let studentList = [];
+        let calledStudents = new Set();
 
-        function loadJobs() {
-            const jobListDiv = document.getElementById("job-list");
-            jobListDiv.innerHTML = "";  // 清空内容
-
-            Object.entries(sites).forEach(([siteName, jobs]) => {
-                const siteDiv = document.createElement("div");
-                siteDiv.className = "site-section";
-                siteDiv.innerHTML = `<h2>${siteName}</h2>`;
-
-                if (jobs.length === 0) {
-                    siteDiv.innerHTML += `<p>暂无数据</p>`;
-                } else {
-                    jobs.forEach(job => {
-                        siteDiv.innerHTML += `
-                            <div class="job">
-                                <a href="${job.link}" target="_blank">${job.title}</a>
-                            </div>
-                        `;
-                    });
-                }
-
-                jobListDiv.appendChild(siteDiv);
-            });
+        function loadStudentList() {
+            const names = document.getElementById("student-names").value.trim();
+            if (names === "") {
+                alert("请先输入学生名单！");
+                return;
+            }
+            studentList = names.split("\n").map(name => name.trim()).filter(name => name !== "");
+            calledStudents.clear();
+            document.getElementById("called-students").innerHTML = "";
+            document.getElementById("picked-student").innerText = "尚未开始点名";
+            alert("学生名单已加载成功！");
         }
 
-        // 加载模拟招聘数据
-        loadJobs();
+        function pickRandomStudent() {
+            if (studentList.length === 0) {
+                alert("请先加载学生名单！");
+                return;
+            }
+
+            const remainingStudents = studentList.filter(name => !calledStudents.has(name));
+            if (remainingStudents.length === 0) {
+                alert("所有学生都已点名完毕！");
+                return;
+            }
+
+            const randomIndex = Math.floor(Math.random() * remainingStudents.length);
+            const pickedStudent = remainingStudents[randomIndex];
+            calledStudents.add(pickedStudent);
+            document.getElementById("picked-student").innerText = pickedStudent;
+
+            // 更新已点名列表
+            const calledList = document.getElementById("called-students");
+            const listItem = document.createElement("li");
+            listItem.textContent = pickedStudent;
+            calledList.appendChild(listItem);
+        }
+
+        function resetAttendance() {
+            calledStudents.clear();
+            document.getElementById("called-students").innerHTML = "";
+            document.getElementById("picked-student").innerText = "尚未开始点名";
+            alert("点名记录已重置！");
+        }
     </script>
 </body>
 </html>
